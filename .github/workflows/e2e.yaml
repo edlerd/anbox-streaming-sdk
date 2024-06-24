@@ -1,5 +1,4 @@
 name: E2e tests
-
 on:
   workflow_call:
     secrets:
@@ -9,10 +8,7 @@ on:
   schedule:
     # execute the action nightly
     - cron: '0 10 * * *'
-  push:
-    branches:
-      - '**'
-  pull_request:
+  pull_request_target:
     branches:
       - '**'
 
@@ -25,7 +21,24 @@ jobs:
     name: microbox, amd64
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@main
+    - uses: actions/checkout@v4
+      with:
+        # Fetch all history for all branches and tags
+        fetch-depth: 0
+
+    - name: Set up the repository context
+      run: |
+        echo "GITHUB_BASE_REF: ${{ github.event.pull_request.base.ref }}"
+        echo "GITHUB_HEAD_REF: ${{ github.event.pull_request.head.ref }}"
+
+    - name: Check out the source branch
+      run: git checkout ${{ github.event.pull_request.head.ref }}
+
+    - name: Check out the source branch
+      run: |
+        pwd
+        ls -l
+        ls ../../../
 
     - name: Store current date and time in output
       id: datetime
